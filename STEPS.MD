@@ -17,3 +17,4 @@
    --github auth was slightly more annoying than at first blush.
    --secret would, needless to say, be stored in .env file. Could use a solution like dotenv vault to securely pull such secrets in!
 5. Looks like we'll want to brush up on recursion. Hurrah.
+   --ran into a recursive hellscape with finding followers of followers, will revisit in morning as its rather late.

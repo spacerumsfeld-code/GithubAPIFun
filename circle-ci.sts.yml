@@ -1,0 +1,116 @@
+version: 2.1
+
+orbs:
+  nx: nrwl/nx@1.6.0
+
+commands:
+  install_node_lts:
+    steps:
+      - run:
+          name: Install Node LTS
+          command: |
+            nvm install --lts --latest-npm
+            node -v
+            npm --version
+            docker compose version
+
+  # we can deploy NextJS apps to vercel easily with this step. (Run after tests have passed)
+  # There would be different deploy steps for all the different apps, but this is an example!
+  # -- Nick, STS assessment
+  deploy:
+    steps:
+      - run:
+          name: Trigger Vercel Development Deploy
+          command: curl https://api.vercel.com/v1/integrations/deploy/
+
+jobs:
+  ## if we have a ton of apps in our NX monorepo (which we'd want to), this build command uses NX's --affected flag to only rebuild modified code!
+  ## Nick, STS assessment
+  build:
+    machine:
+      image: ubuntu-2204:current
+      docker_layer_caching: true
+
+    resource_class: large
+
+    steps:
+      - install_node_lts
+
+      - checkout
+
+      - restore_cache:
+          keys:
+            - npm-cache-v3-{{ checksum "package-lock.json" }}-{{ arch }}
+
+      - run: env
+
+      ## DotEnv vaults are a nice way to manage secrets and get them into containerized environments anywhere, but of course, 9000 ways to skin a cat
+      ## Nick, STS assessment
+      - run:
+          name: Configure Environment From DotEnv
+          command: npm_config_yes=true npx dotenv-vault@latest pull --dotenvMe $DOTENV_ME && cat .env
+
+      - run:
+          name: Install Dependencies
+          command: npm ci
+
+      - run:
+          name: Run Lint
+          command: npx nx affected --target=lint
+
+      - run:
+          name: Run Builds
+          command: npx nx affected --target=build
+
+      - run:
+          name: Build Docker API
+          command: docker compose -f .docker/test/docker-compose.yml build
+
+      - run:
+          name: Start Test Environment
+          command: docker compose -f .docker/test/docker-compose.yml up -d
+
+      - run:
+          name: Run Tests
+          command: sleep 30 && npx nx affected --target=test
+
+      - run:
+          name: Run E2E Tests
+          command: npx nx run web-e2e:e2e
+          no_output_timeout: 25m
+
+      - run:
+          name: Stop Test Environment
+          command: docker compose -f .docker/test/docker-compose.yml down
+
+      - store_artifacts:
+          name: Upload Screenshots
+          path: dist/cypress/apps/web-e2e/screenshots/
+
+      - store_artifacts:
+          name: Upload Videos
+          path: dist/cypress/apps/web-e2e/videos/
+
+      - when:
+          condition:
+            equal: [development, << pipeline.git.branch >>]
+          steps:
+            - deploy
+
+      - save_cache:
+          key: npm-cache-v3-{{ checksum "package-lock.json" }}-{{ arch }}
+          paths:
+            - ~/.npm
+            - ~/.cache
+            - cache.lock
+            - node_modules
+
+workflows:
+  sts_main_workflow:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: development
+# We can do cool extra stuff here like deploy all other apps, have a nightly push to staging from development, etc!
+# Nick, STS assessment

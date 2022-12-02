@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const getGithubFollowersById = async (username: string) => {
+const getGithuboFollowersByUsername = async (username: string) => {
   let followers;
 
   try {
@@ -14,4 +14,4 @@ const getGithubFollowersById = async (username: string) => {
   return followers.data;
 };
 
-export default getGithubFollowersById;
+export default getGithuboFollowersByUsername;
