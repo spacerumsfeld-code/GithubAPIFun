@@ -15,7 +15,7 @@ const githubRouter = nc<NextApiRequest, NextApiResponse>({
 });
 
 githubRouter.get('/api/github/get-followers', async (req, res) => {
-  const { id } = req.body as { id: string };
+  const { id } = req.query as { id: string };
 
   let followers;
   try {
