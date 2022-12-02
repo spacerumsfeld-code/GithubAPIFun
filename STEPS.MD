@@ -14,5 +14,6 @@
 4. Create the actual Github service method that will do the job we are being asked to do.
    --implemented octokit client to connect to github API
    --implemented basic personal token auth.
+   --github auth was slightly more annoying than at first blush.
+   --secret would, needless to say, be stored in .env file. Could use a solution like dotenv vault to securely pull such secrets in!
 5. Looks like we'll want to brush up on recursion. Hurrah.
-6. Test solution.

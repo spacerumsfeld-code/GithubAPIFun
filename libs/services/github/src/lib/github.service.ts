@@ -2,25 +2,47 @@ import { createTokenAuth } from '@octokit/auth-token';
 import { Octokit } from 'octokit';
 
 export class GithubService {
-  async getFollowersById(username: string) {
-    const auth = createTokenAuth('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');
+  async getABunchofFollowers(username: string) {
+    let followerCount = 0;
+    const followers: any = {};
+
+    const getFollowersRecursively = async (username: string) => {
+      if (followerCount >= 100) return;
+      else {
+        followers[username] = await this.getFollowerByUsername(username);
+        followerCount += followers[username]?.length ?? 0;
+      }
+      await Promise.all(
+        followers[username]?.map(
+          async ({ login }: { login: string }) =>
+            // await (followers[login] = await getFollowersRecursively(login))
+            await (followers[login] = await this.getFollowerByUsername(login))
+        )
+      );
+    };
+
+    await getFollowersRecursively(username);
+
+    return followers;
+  }
+
+  private async getFollowerByUsername(username: string) {
+    const auth = createTokenAuth('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');
     const { token } = await auth();
 
-    console.log('what token are we getting', token);
     const client = new Octokit({
       auth: token,
     });
 
-    console.log('client?', client);
     let followers;
-
     try {
-      followers = await client.request(`GET /users/${username}/followers`);
+      const githubResponse = await client.request(
+        `GET /users/${username}/followers`
+      );
+      followers = githubResponse.data;
     } catch (e) {
       console.log(e);
     }
-
-    console.log('followers from github method', followers);
 
     return followers;
   }

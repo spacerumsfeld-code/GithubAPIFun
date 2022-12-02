@@ -15,11 +15,11 @@ const githubRouter = nc<NextApiRequest, NextApiResponse>({
 });
 
 githubRouter.get('/api/github/get-followers', async (req, res) => {
-  const { id } = req.query as { id: string };
+  const { username } = req.query as { username: string };
 
   let followers;
   try {
-    followers = await githubService.getFollowersById(id);
+    followers = await githubService.getABunchofFollowers(username);
   } catch (e) {
     console.log(e);
   }
