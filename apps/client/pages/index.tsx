@@ -16,15 +16,18 @@ export function Index() {
     }
   );
 
+  console.log('followers baby', followers);
+
   return (
-    <div className="flex justify-center align-middle gap-2 flex-col">
-      <input
-        className="w-1/10"
-        placeholder="Github ID"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-      />
-      <Primary.Button text="Get followers" onClick={() => getFollowers()} />
+    <div className="w-1/2 h-1/2">
+      <div className="flex gap-2 flex-col w-32 border-2">
+        <input
+          placeholder="Github ID"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
+        <Primary.Button text="Get followers" onClick={() => getFollowers()} />
+      </div>
     </div>
   );
 }
