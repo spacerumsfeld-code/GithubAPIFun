@@ -21,3 +21,7 @@ My objective for this has been to: have fun, make at least a decent attempt at t
 4. Demonstrate full-stack competence by linking together a basic client and backend cohesively.
 5. Re-usable blocks of code in the form of NX libraries, my examples being an API service and a UI library.
 6. Rudiments of a CI/CD pipeline that includes testing and only re-deploying affected code.
+
+## Notes
+
+1. Needless to say, a token would not usually be present in commited code. I can't emphasize enough that something like a DotEnv vault (pull/push collections of secrets even into Dockerized environments) would be my go-to, but decided to opt for having a token present for convenience for this assessment.
